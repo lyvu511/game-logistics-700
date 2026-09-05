@@ -1,0 +1,96 @@
+const express = require('express');
+const nodemailer = require('nodemailer');
+const path = require('path');
+
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+const ADMIN_EMAIL = 'jeikei0511@gmail.com';
+const activeUsers = new Map();
+const pendingCodes = new Map();
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: ADMIN_EMAIL,
+    pass: process.env.GMAIL_APP_PASS || ''
+  }
+});
+
+// Yêu cầu cấp mã đăng nhập
+app.post('/api/request-code', (req, res) => {
+  const { name, email } = req.body;
+
+  if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    activeUsers.set(email, { name, role: 'admin' });
+    return res.json({ success: true, isAdmin: true });
+  }
+
+  if (activeUsers.size >= 55) {
+    return res.status(400).json({ message: "Phòng chơi đã đủ 55 người!" });
+  }
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  pendingCodes.set(email, { name, code });
+
+  if (process.env.GMAIL_APP_PASS) {
+    const mailOptions = {
+      from: 'Hệ Thống Game Logistics',
+      to: ADMIN_EMAIL,
+      subject: `[MÃ CẤP PHÉP CHƠI GAME] - ${name}`,
+      text: `Học viên ${name} (${email}) đang xin cấp phép vào chơi.\n\nMã xác thực cấp cho người này là: ${code}`
+    };
+    transporter.sendMail(mailOptions, (err) => {
+      if (err) console.log("Lỗi gửi mail:", err.message);
+    });
+  }
+
+  res.json({ success: true, isAdmin: false });
+});
+
+// Xác nhận mã
+app.post('/api/verify-code', (req, res) => {
+  const { email, code } = req.body;
+  const pending = pendingCodes.get(email);
+
+  if (pending && pending.code === code) {
+    activeUsers.set(email, { name: pending.name, role: 'user' });
+    pendingCodes.delete(email);
+    res.json({ success: true });
+  } else {
+    res.json({ success: false, message: "Mã xác thực không chính xác!" });
+  }
+});
+
+// API Lấy dữ liệu cho Admin
+app.get('/api/admin/data', (req, res) => {
+  const adminEmail = req.query.email;
+  if (adminEmail !== ADMIN_EMAIL) return res.status(403).send("Forbidden");
+
+  const pendingList = [];
+  pendingCodes.forEach((val, key) => {
+    pendingList.push({ email: key, name: val.name, code: val.code });
+  });
+
+  const activeList = [];
+  activeUsers.forEach((val, key) => {
+    activeList.push({ email: key, name: val.name, role: val.role });
+  });
+
+  res.json({ pendingList, activeList });
+});
+
+// API Kick người chơi
+app.post('/api/admin/kick', (req, res) => {
+  const { adminEmail, targetEmail } = req.body;
+  if (adminEmail === ADMIN_EMAIL) {
+    activeUsers.delete(targetEmail);
+    res.json({ success: true });
+  } else {
+    res.status(403).json({ success: false });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server đang chạy trên cổng ${PORT}`));
