@@ -1,325 +1,363 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đua Top Logistics 700 - Retro Version</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Đấu Trí & Học Tập Logistics 700</title>
+  <style>
+    :root {
+      --bg-color: #1a0933;
+      --card-bg: #2b1254;
+      --border-color: #ff2a85;
+      --text-color: #00f6ff;
+      --accent-color: #ffe600;
+      --button-bg: #ff2a85;
+      --button-hover: #ff0055;
+    }
 
-        :root { 
-            --bg: #2b213a; 
-            --card: #241734; 
-            --primary: #ff758f; 
-            --secondary: #00f5d4; 
-            --yellow: #ffee32; 
-            --text: #f7f7f7; 
-            --border-retro: 3px solid #ffee32;
-        }
+    * { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
 
-        body { 
-            font-family: 'VT323', monospace, sans-serif; 
-            margin: 0; padding: 0; 
-            background-color: var(--bg); color: var(--text); 
-            font-size: 1.2rem; letter-spacing: 1px;
-        }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0; padding: 15px;
+      display: flex; flex-direction: column; align-items: center;
+    }
 
-        header { 
-            background: #1e022d; color: var(--yellow); 
-            padding: 1rem; text-align: center; 
-            font-size: 2rem; border-bottom: 4px solid var(--primary);
-            text-shadow: 2px 2px #ff758f;
-        }
+    h1 {
+      color: var(--accent-color);
+      text-shadow: 2px 2px #ff2a85;
+      margin-bottom: 10px;
+      text-align: center;
+    }
 
-        .container { 
-            max-width: 1200px; margin: 0 auto; padding: 15px; 
-            display: grid; grid-template-columns: 1fr 320px; gap: 20px; 
-        }
+    /* Thanh điều hướng Chế Độ */
+    .mode-nav {
+      display: flex; gap: 10px; margin-bottom: 20px;
+    }
 
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+    .nav-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      color: #fff;
+      padding: 10px 20px;
+      font-weight: bold; cursor: pointer;
+      box-shadow: 3px 3px 0px var(--border-color);
+    }
 
-        .card { 
-            background: var(--card); border: var(--border-retro); 
-            padding: 20px; box-shadow: 5px 5px 0px #000; margin-bottom: 20px; 
-        }
+    .nav-btn.active {
+      background: var(--border-color);
+      color: #fff;
+      box-shadow: 3px 3px 0px var(--accent-color);
+    }
 
-        .btn { 
-            background: var(--secondary); color: #000; 
-            border: 2px solid #fff; padding: 10px 15px; 
-            font-family: 'VT323', monospace; font-size: 1.3rem;
-            cursor: pointer; box-shadow: 3px 3px 0px #000;
-        }
+    /* Modal Đăng nhập */
+    #loginModal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85); display: flex;
+      justify-content: center; align-items: center; z-index: 1000;
+    }
 
-        .btn:hover { background: var(--yellow); }
+    .login-box {
+      background: var(--card-bg); border: 3px solid var(--border-color);
+      padding: 25px; text-align: center; width: 320px;
+      box-shadow: 6px 6px 0px var(--accent-color);
+    }
 
-        #auth-modal { 
-            position: fixed; inset: 0; background: rgba(15, 5, 29, 0.9); 
-            display: flex; align-items: center; justify-content: center; z-index: 1000; 
-        }
+    .login-box input {
+      width: 100%; padding: 10px; margin: 10px 0;
+      border: 2px solid var(--text-color); background: #000; color: #fff;
+    }
 
-        .auth-box { 
-            background: var(--card); border: 4px solid var(--primary); 
-            padding: 30px; max-width: 400px; width: 100%; text-align: center; 
-            box-shadow: 8px 8px 0px #000;
-        }
+    .login-box button {
+      width: 100%; padding: 10px; background: var(--accent-color);
+      color: #000; font-weight: bold; border: none; cursor: pointer;
+    }
 
-        input[type="text"], input[type="email"] { 
-            width: 100%; padding: 10px; margin: 10px 0; 
-            border: 2px solid var(--secondary); background: #000;
-            color: var(--yellow); font-family: 'VT323', monospace; font-size: 1.2rem;
-            box-sizing: border-box; 
-        }
+    /* Khu vực Chơi Đấu Trí */
+    .game-container {
+      display: grid; grid-template-columns: 2fr 1fr; gap: 15px; width: 100%; max-width: 1000px;
+    }
 
-        .option-btn { 
-            display: block; width: 100%; text-align: left; 
-            margin: 10px 0; padding: 12px; border: 2px solid var(--primary); 
-            background: #1a0f2e; color: var(--text);
-            font-family: 'VT323', monospace; font-size: 1.3rem; cursor: pointer; 
-            box-shadow: 3px 3px 0px #000;
-        }
+    .card {
+      background: var(--card-bg); border: 2px solid var(--border-color);
+      padding: 15px; box-shadow: 4px 4px 0px var(--border-color);
+    }
 
-        .option-btn:hover { background: var(--primary); color: #000; }
+    .stats { display: flex; justify-content: space-around; font-weight: bold; color: var(--accent-color); }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
-        .stat-card { background: #18092b; border: 2px solid var(--secondary); padding: 10px; }
-        .stat-card small { color: var(--secondary); font-size: 1.1rem; }
-        .stat-card h2 { margin: 5px 0 0 0; font-size: 2rem; }
+    .question-box {
+      font-size: 24px; text-align: center; margin: 25px 0; color: #fff;
+      min-height: 60px; display: flex; align-items: center; justify-content: center;
+      border: 1px dashed var(--text-color);
+    }
 
-        #chat-messages { 
-            height: 250px; overflow-y: auto; border: 2px solid var(--secondary); 
-            background: #000; padding: 10px; margin-bottom: 10px; 
-        }
-        .msg { margin-bottom: 8px; font-size: 1.1rem; }
-        .msg-user { color: var(--yellow); font-weight: bold; }
-    </style>
+    .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .ans-btn {
+      background: #110522; border: 2px solid var(--text-color); color: #fff;
+      padding: 15px; text-align: left; cursor: pointer; font-size: 14px;
+    }
+
+    .ans-btn:hover { background: var(--border-color); }
+
+    /* Khu vực Học Từ Mới (Flashcard Mode) */
+    .study-container {
+      display: none; flex-direction: column; align-items: center; width: 100%; max-width: 800px;
+    }
+
+    .flashcard {
+      width: 100%; max-width: 450px; height: 260px; background: var(--card-bg);
+      border: 3px solid var(--text-color); box-shadow: 6px 6px 0px var(--border-color);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      cursor: pointer; text-align: center; padding: 20px; margin-bottom: 15px;
+      transition: transform 0.2s;
+    }
+
+    .flashcard:active { transform: scale(0.98); }
+
+    .flashcard .word { font-size: 28px; color: var(--accent-color); margin-bottom: 10px; }
+
+    .flashcard .meaning { font-size: 20px; color: #fff; display: none; }
+
+    .flashcard .hint { font-size: 12px; color: #aaa; margin-top: 15px; }
+
+    .study-controls { display: flex; gap: 15px; margin-bottom: 25px; }
+
+    .vocab-table {
+      width: 100%; background: var(--card-bg); border: 2px solid var(--border-color);
+      border-collapse: collapse; margin-top: 10px;
+    }
+
+    .vocab-table th, .vocab-table td {
+      border: 1px solid var(--border-color); padding: 8px 12px; text-align: left;
+    }
+
+    .vocab-table th { background: #110522; color: var(--accent-color); }
+
+    .search-box {
+      width: 100%; padding: 10px; background: #000; border: 2px solid var(--text-color);
+      color: #fff; margin-bottom: 10px;
+    }
+
+    /* Chat & Leaderboard */
+    .chat-box { height: 180px; overflow-y: auto; background: #000; border: 1px solid var(--text-color); padding: 5px; font-size: 12px; }
+    .chat-input-group { display: flex; margin-top: 5px; }
+    .chat-input-group input { flex: 1; padding: 5px; background: #000; color: #fff; border: 1px solid var(--text-color); }
+    .chat-input-group button { padding: 5px 10px; background: var(--border-color); border: none; color: #fff; }
+  </style>
 </head>
 <body>
 
-<header>🎮 HỆ THỐNG ĐẤU TRÍ LOGISTICS 700 (RETRO)</header>
+  <h1>⚡ HỆ THỐNG ĐẤU TRÍ LOGISTICS 700 ⚡</h1>
 
-<!-- Auth Modal -->
-<div id="auth-modal">
-    <div class="auth-box">
-        <h2 style="color: var(--yellow);">ĐĂNG NHẬP GAME</h2>
-        <p style="font-size: 1rem; color: var(--secondary);">(Giới hạn 55 người chơi)</p>
-        <div id="step-1">
-            <input type="text" id="username" placeholder="Tên của bạn...">
-            <input type="email" id="useremail" placeholder="Email của bạn...">
-            <button class="btn" onclick="requestAccessCode()">VÀO GAME / XIN MÃ</button>
-        </div>
-        <div id="step-2" style="display:none;">
-            <p style="color: var(--secondary);">Mã đã gửi đến Admin (jeikei0511@gmail.com). Hãy nhập mã Admin đọc cho bạn:</p>
-            <input type="text" id="access-code" placeholder="Nhập mã 6 số...">
-            <button class="btn" onclick="verifyAndLogin()">XÁC NHẬN MÃ</button>
-        </div>
+  <div class="mode-nav">
+    <button class="nav-btn active" id="btnQuizMode" onclick="switchMode('quiz')">🎮 ĐẤU TRÍ / LÀM BÀI</button>
+    <button class="nav-btn" id="btnStudyMode" onclick="switchMode('study')">📖 HỌC TỪ MỚI (FLASHCARD)</button>
+  </div>
+
+  <!-- Modal Đăng nhập -->
+  <div id="loginModal">
+    <div class="login-box">
+      <h3>ĐĂNG NHẬP GAME</h3>
+      <p style="font-size:12px; color:#aaa;">(Giới hạn 55 người chơi)</p>
+      <input type="text" id="username" placeholder="Tên của bạn...">
+      <input type="email" id="useremail" placeholder="Email của bạn...">
+      <button onclick="login()">VÀO GAME / XIN MÃ</button>
     </div>
-</div>
+  </div>
 
-<div class="container">
-    <div>
-        <!-- Stats -->
-        <div class="card">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <small>Số từ cần học</small>
-                    <h2>700</h2>
-                </div>
-                <div class="stat-card">
-                    <small>Số từ đã sai</small>
-                    <h2 id="wrong-words-count" style="color: #ff477e;">0</h2>
-                </div>
-                <div class="stat-card">
-                    <small>Điểm Bảng Xếp Hạng</small>
-                    <h2 id="user-score" style="color: var(--yellow);">0</h2>
-                </div>
-            </div>
+  <!-- CHẾ ĐỘ 1: ĐẤU TRÍ / LÀM BÀI -->
+  <div class="game-container" id="quizSection">
+    <div class="main-quiz">
+      <div class="card">
+        <div class="stats">
+          <span>Số từ cần học: 700</span>
+          <span>Số từ đã sai: <span id="wrongCount">0</span></span>
+          <span>Điểm: <span id="score">0</span></span>
         </div>
-
-        <!-- Quiz Area -->
-        <div class="card">
-            <div style="display: flex; justify-content: space-between;">
-                <span id="topic-title" style="color: var(--secondary);">Chủ đề: Tổng hợp</span>
-            </div>
-            <h1 id="question-word" style="text-align: center; margin: 30px 0; color: var(--yellow); font-size: 2.5rem;">Loading...</h1>
-            <div id="options-container"></div>
-        </div>
-
-        <!-- Admin Panel -->
-        <div class="card" id="admin-panel" style="display:none; border: 3px solid #ff477e;"></div>
+        <div class="question-box" id="questionBox">Đang tải câu hỏi...</div>
+        <div class="answers-grid" id="answersGrid"></div>
+      </div>
     </div>
 
-    <!-- Sidebar -->
-    <div>
-        <div class="card">
-            <h3 style="margin-top:0; color: var(--yellow);">🏆 BẢNG XẾP HẠNG TOP 55</h3>
-            <ol id="leaderboard-list" style="padding-left: 20px;"></ol>
+    <div class="sidebar">
+      <div class="card" style="margin-bottom: 15px;">
+        <h4 style="margin:0 0 10px 0; color:var(--accent-color);">🏆 BẢNG XẾP HẠNG TOP</h4>
+        <div id="leaderboard" style="font-size: 13px;">1. Vũ Hải Ly - 100 điểm</div>
+      </div>
+      <div class="card">
+        <h4 style="margin:0 0 10px 0; color:var(--accent-color);">💬 CHAT CHUNG</h4>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="chat-input-group">
+          <input type="text" id="chatInput" placeholder="Chat...">
+          <button onclick="sendChat()">GỬI</button>
         </div>
-
-        <div class="card">
-            <h3 style="margin-top:0; color: var(--yellow);">💬 CHAT CHUNG</h3>
-            <div id="chat-messages"></div>
-            <div style="display: flex; gap: 5px;">
-                <input type="text" id="chat-input" placeholder="Chat..." style="margin:0;">
-                <button class="btn" onclick="sendMessage()">GỬI</button>
-            </div>
-        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<script>
-    const vocabularyList = [
-        { word: "Export", meaning: "Xuất khẩu", topic: "Xuất nhập khẩu" },
-        { word: "Importer", meaning: "Người nhập khẩu", topic: "Xuất nhập khẩu" },
-        { word: "Customs clearance", meaning: "Thông quan", topic: "Hải quan" },
-        { word: "Bill of Lading (BL)", meaning: "Vận đơn đường biển", topic: "Chứng từ" },
-        { word: "FOB - Free On Board", meaning: "Giao hàng lên tàu", topic: "Incoterms" },
-        { word: "CIF", meaning: "Tiền hàng, bảo hiểm và cước phí", topic: "Incoterms" },
-        { word: "Bonded warehouse", meaning: "Kho ngoại quan", topic: "Kho vận" },
-        { word: "Freight forwarder", meaning: "Hãng giao nhận vận tải", topic: "Vận chuyển" },
-        { word: "Consignee", meaning: "Người nhận hàng", topic: "Vận chuyển" },
-        { word: "Container Yard - CY", meaning: "Bãi container", topic: "Kho vận" }
+  <!-- CHẾ ĐỘ 2: HỌC TỪ MỚI (FLASHCARD & TRA CỨU) -->
+  <div class="study-container" id="studySection">
+    <!-- Flashcard lật mặt -->
+    <div class="flashcard" onclick="flipCard()">
+      <div class="word" id="flashWord">Bill of Lading (BL)</div>
+      <div class="meaning" id="flashMeaning">Vận đơn đường biển</div>
+      <div class="hint">(Nhấp vào thẻ để xem / ẩn nghĩa tiếng Việt)</div>
+    </div>
+
+    <div class="study-controls">
+      <button class="nav-btn" onclick="prevCard()">⬅️ Từ trước</button>
+      <button class="nav-btn" onclick="nextCard()">Từ tiếp theo ➡️</button>
+    </div>
+
+    <!-- Bảng tra cứu 700 từ -->
+    <div class="card" style="width: 100%;">
+      <h3 style="margin-top:0; color:var(--accent-color);">📚 DANH SÁCH & TRA CỨU TỪ VỰNG LOGISTICS</h3>
+      <input type="text" class="search-box" id="searchVocab" placeholder="🔍 Nhập từ tiếng Anh hoặc tiếng Việt để tìm nhanh..." onkeyup="filterVocab()">
+      
+      <div style="max-height: 300px; overflow-y: auto;">
+        <table class="vocab-table">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Từ vựng (English)</th>
+              <th>Nghĩa tiếng Việt</th>
+            </tr>
+          </thead>
+          <tbody id="vocabTableBody">
+            <!-- Tải danh sách từ vựng vào đây -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dữ liệu từ vựng Logistics
+    const vocabList = [
+      { en: "Bill of Lading (BL)", vi: "Vận đơn đường biển" },
+      { en: "Container Yard (CY)", vi: "Bãi container" },
+      { en: "Freight Forwarder", vi: "Công ty giao nhận vận tải" },
+      { en: "Customs Clearance", vi: "Thông quan quan thuế" },
+      { en: "Incoterms", vi: "Điều khoản thương mại quốc tế" },
+      { en: "Certificate of Origin (C/O)", vi: "Giấy chứng nhận xuất xứ" },
+      { en: "Estimated Time of Arrival (ETA)", vi: "Thời gian dự kiến đến" },
+      { en: "Estimated Time of Departure (ETD)", vi: "Thời gian dự kiến đi" },
+      { en: "Warehousing", vi: "Hoạt động lưu kho" },
+      { en: "Supply Chain", vi: "Chuỗi cung ứng" }
     ];
 
-    let currentUser = null;
-    let wrongWords = [];
-    let currentScore = 0;
-    let currentQuestion = null;
+    let currentCardIdx = 0;
+    let score = 0;
+    let wrong = 0;
+    let currentUser = "";
 
-    function requestAccessCode() {
-        const name = document.getElementById('username').value;
-        const email = document.getElementById('useremail').value.trim();
-        if (!name || !email) return alert("Vui lòng điền tên và email!");
-
-        fetch('/api/request-code', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ name, email })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.isAdmin) {
-                currentUser = { name, email, isAdmin: true };
-                document.getElementById('auth-modal').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                initAdminDashboard();
-                initGame();
-            } else {
-                document.getElementById('step-1').style.display = 'none';
-                document.getElementById('step-2').style.display = 'block';
-            }
-        });
+    function login() {
+      const name = document.getElementById('username').value.trim();
+      const email = document.getElementById('useremail').value.trim();
+      if (!name || !email) return alert("Vui lòng nhập tên và email!");
+      currentUser = name;
+      document.getElementById('loginModal').style.display = 'none';
+      loadQuestion();
+      loadStudyData();
     }
 
-    function verifyAndLogin() {
-        const code = document.getElementById('access-code').value;
-        const email = document.getElementById('useremail').value.trim();
-        const name = document.getElementById('username').value;
-
-        fetch('/api/verify-code', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email, code })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                currentUser = { name, email, isAdmin: false };
-                document.getElementById('auth-modal').style.display = 'none';
-                initGame();
-            } else {
-                alert(data.message || "Mã không đúng!");
-            }
-        });
+    // Chuyển chế độ xem
+    function switchMode(mode) {
+      if (mode === 'quiz') {
+        document.getElementById('quizSection').style.display = 'grid';
+        document.getElementById('studySection').style.display = 'none';
+        document.getElementById('btnQuizMode').classList.add('active');
+        document.getElementById('btnStudyMode').classList.remove('active');
+      } else {
+        document.getElementById('quizSection').style.display = 'none';
+        document.getElementById('studySection').style.display = 'flex';
+        document.getElementById('btnStudyMode').classList.add('active');
+        document.getElementById('btnQuizMode').classList.remove('active');
+      }
     }
 
-    function initAdminDashboard() {
-        setInterval(() => {
-            if (!currentUser || !currentUser.isAdmin) return;
-            fetch(`/api/admin/data?email=${currentUser.email}`)
-            .then(res => res.json())
-            .then(data => {
-                let pendingHTML = '<h3 style="color:#ff477e; margin-top:0;">MÃ ĐANG CHỜ CẤP MỚI:</h3><ul>';
-                data.pendingList.forEach(item => {
-                    pendingHTML += `<li><b>${item.name}</b> (${item.email}) - Mã: <span style="color:var(--yellow); font-size:1.5rem;">${item.code}</span></li>`;
-                });
-                pendingHTML += '</ul>';
-
-                let activeHTML = '<h3 style="color:var(--secondary);">THÀNH VIÊN TRONG PHÒNG (TỐI ĐA 55):</h3><ul>';
-                data.activeList.forEach(item => {
-                    activeHTML += `<li>${item.name} (${item.email}) `;
-                    if (item.role !== 'admin') {
-                        activeHTML += `<button onclick="kickUser('${item.email}')" class="btn" style="padding:2px 5px; font-size:0.9rem; background:#ff477e; color:#fff;">Kích</button>`;
-                    } else {
-                        activeHTML += `<i>(Admin)</i>`;
-                    }
-                    activeHTML += `</li>`;
-                });
-                activeHTML += '</ul>';
-
-                document.getElementById('admin-panel').innerHTML = pendingHTML + activeHTML;
-            });
-        }, 2000);
+    // Flashcard Logic
+    function loadStudyData() {
+      updateCard();
+      const tbody = document.getElementById('vocabTableBody');
+      tbody.innerHTML = "";
+      vocabList.forEach((item, index) => {
+        tbody.innerHTML += `<tr><td>${index + 1}</td><td><b>${item.en}</b></td><td>${item.vi}</td></tr>`;
+      });
     }
 
-    function kickUser(targetEmail) {
-        fetch('/api/admin/kick', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ adminEmail: currentUser.email, targetEmail })
-        }).then(() => alert("Đã kích thành công!"));
+    function updateCard() {
+      document.getElementById('flashWord').innerText = vocabList[currentCardIdx].en;
+      document.getElementById('flashMeaning').innerText = vocabList[currentCardIdx].vi;
+      document.getElementById('flashMeaning').style.display = 'none';
     }
 
-    function loadNextQuestion() {
-        const randIndex = Math.floor(Math.random() * vocabularyList.length);
-        currentQuestion = vocabularyList[randIndex];
-        
-        document.getElementById('question-word').innerText = currentQuestion.word;
-        document.getElementById('topic-title').innerText = `Chủ đề: ${currentQuestion.topic}`;
-
-        const optionsContainer = document.getElementById('options-container');
-        optionsContainer.innerHTML = '';
-
-        let options = [currentQuestion.meaning];
-        while (options.length < 4) {
-            let randomMeaning = vocabularyList[Math.floor(Math.random() * vocabularyList.length)].meaning;
-            if (!options.includes(randomMeaning)) options.push(randomMeaning);
-        }
-        options.sort(() => Math.random() - 0.5);
-
-        options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = opt;
-            btn.onclick = () => checkAnswer(opt);
-            optionsContainer.appendChild(btn);
-        });
+    function flipCard() {
+      const el = document.getElementById('flashMeaning');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
-    function checkAnswer(selected) {
-        if (selected === currentQuestion.meaning) {
-            currentScore += 10;
-            alert("CHÍNH XÁC! +10 ĐIỂM");
-        } else {
-            wrongWords.push(currentQuestion);
-            document.getElementById('wrong-words-count').innerText = wrongWords.length;
-            alert(`SAI RỒI! Đáp án đúng là: ${currentQuestion.meaning}`);
-        }
-        document.getElementById('user-score').innerText = currentScore;
-        loadNextQuestion();
+    function nextCard() {
+      currentCardIdx = (currentCardIdx + 1) % vocabList.length;
+      updateCard();
     }
 
-    function sendMessage() {
-        const input = document.getElementById('chat-input');
-        if (!input.value) return;
-        const msgBox = document.getElementById('chat-messages');
-        msgBox.innerHTML += `<div class="msg"><span class="msg-user">${currentUser.name}:</span> ${input.value}</div>`;
-        input.value = '';
-        msgBox.scrollTop = msgBox.scrollHeight;
+    function prevCard() {
+      currentCardIdx = (currentCardIdx - 1 + vocabList.length) % vocabList.length;
+      updateCard();
     }
 
-    function initGame() {
-        loadNextQuestion();
+    function filterVocab() {
+      const q = document.getElementById('searchVocab').value.toLowerCase();
+      const rows = document.querySelectorAll('#vocabTableBody tr');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+      });
     }
-</script>
+
+    // Quiz Logic
+    function loadQuestion() {
+      const q = vocabList[Math.floor(Math.random() * vocabList.length)];
+      document.getElementById('questionBox').innerText = q.en;
+      
+      let answers = [q.vi];
+      while (answers.length < 4) {
+        let rand = vocabList[Math.floor(Math.random() * vocabList.length)].vi;
+        if (!answers.includes(rand)) answers.push(rand);
+      }
+      answers.sort(() => Math.random() - 0.5);
+
+      const grid = document.getElementById('answersGrid');
+      grid.innerHTML = "";
+      answers.forEach(ans => {
+        const btn = document.createElement('button');
+        btn.className = "ans-btn";
+        btn.innerText = ans;
+        btn.onclick = () => {
+          if (ans === q.vi) {
+            alert("Chính xác! 🎉"); score += 10;
+          } else {
+            alert("Sai rồi! Đáp án đúng là: " + q.vi); wrong += 1;
+          }
+          document.getElementById('score').innerText = score;
+          document.getElementById('wrongCount').innerText = wrong;
+          loadQuestion();
+        };
+        grid.appendChild(btn);
+      });
+    }
+
+    function sendChat() {
+      const input = document.getElementById('chatInput');
+      if (!input.value.trim()) return;
+      const box = document.getElementById('chatBox');
+      box.innerHTML += `<div><b>${currentUser || 'Bạn'}:</b> ${input.value}</div>`;
+      input.value = "";
+      box.scrollTop = box.scrollHeight;
+    }
+  </script>
 </body>
 </html>
