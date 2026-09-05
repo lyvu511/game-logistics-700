@@ -21,6 +21,7 @@ const transporter = nodemailer.createTransport({
 // Yêu cầu cấp mã đăng nhập
 app.post('/api/request-code', (req, res) => {
   const { name, email } = req.body;
+  if (!email) return res.status(400).json({ message: "Thiếu email" });
 
   if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
     activeUsers.set(email, { name, role: 'admin' });
